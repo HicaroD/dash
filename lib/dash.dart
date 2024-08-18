@@ -19,8 +19,9 @@ const String SCHEMA =
 
 class Dash {
   late final Database _db;
+  late final String _path;
 
-  Dash._(this._db);
+  Dash._(this._db, this._path);
 
   static Future<Dash> init() async {
     if (Platform.isLinux) return _initLinux();
@@ -32,24 +33,27 @@ class Dash {
 
   static Future<Dash> _initLinux() async {
     sqfliteFfiInit();
+
     final db = await databaseFactoryFfi.openDatabase("./local_cache.db");
     await db.execute(SCHEMA);
-    return Dash._(db);
+    final path = db.path;
+
+    return Dash._(db, path);
   }
 
   static Future<Dash> _initAndroid() async {
     final databaseLocation = await getDatabasesPath();
-    final databasePath = p.join(databaseLocation, "local_cache.db");
+    final path = p.join(databaseLocation, "local_cache.db");
 
     Database database = await openDatabase(
-      databasePath,
+      path,
       version: 0,
       onCreate: (Database db, int version) async {
         await db.execute(SCHEMA);
       },
     );
 
-    return Dash._(database);
+    return Dash._(database, path);
   }
 
   Future<String?> get(String key) async {
@@ -69,6 +73,10 @@ class Dash {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
+  }
+
+  String path() {
+    return _path;
   }
 
   void close() async {
