@@ -1,18 +1,18 @@
-import 'package:cache/cache.dart';
+import 'package:dash/dash.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('database is being created successfully', () async {
-    final cache = await Cache.init();
+    final cache = await Dash.init();
     assert(cache.isOpen());
 
     final version = await cache.version();
     assert(version == 0);
   });
 
-  group("cache operations", () {
-    late Cache cache;
+  group("Dash operations", () {
+    late Dash cache;
     late Faker faker;
 
     setUpAll(() {
@@ -20,7 +20,7 @@ void main() {
     });
 
     setUp(() async {
-      cache = await Cache.init();
+      cache = await Dash.init();
     });
 
     tearDown(() {

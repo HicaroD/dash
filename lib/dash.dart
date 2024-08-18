@@ -1,4 +1,4 @@
-library cache;
+library dash;
 
 import 'dart:io' show Platform;
 import 'package:flutter/widgets.dart';
@@ -17,12 +17,12 @@ const String TABLE_NAME = "cache";
 const String SCHEMA =
     "CREATE TABLE IF NOT EXISTS $TABLE_NAME (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE, value TEXT)";
 
-class Cache {
+class Dash {
   late final Database _db;
 
-  Cache._(this._db);
+  Dash._(this._db);
 
-  static Future<Cache> init() async {
+  static Future<Dash> init() async {
     if (Platform.isLinux) return _initLinux();
     if (Platform.isAndroid) return _initAndroid();
     throw UnimplementedError(
@@ -30,14 +30,14 @@ class Cache {
     );
   }
 
-  static Future<Cache> _initLinux() async {
+  static Future<Dash> _initLinux() async {
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase("./local_cache.db");
     await db.execute(SCHEMA);
-    return Cache._(db);
+    return Dash._(db);
   }
 
-  static Future<Cache> _initAndroid() async {
+  static Future<Dash> _initAndroid() async {
     final databaseLocation = await getDatabasesPath();
     final databasePath = p.join(databaseLocation, "local_cache.db");
 
@@ -49,11 +49,10 @@ class Cache {
       },
     );
 
-    return Cache._(database);
+    return Dash._(database);
   }
 
   Future<String?> get(String key) async {
-    // TODO: see if there is a convenient way of doing this
     List<Map> query = await _db.rawQuery(
       'SELECT value FROM $TABLE_NAME WHERE key = ?',
       [key],
