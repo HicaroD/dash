@@ -8,7 +8,7 @@ void main() {
     assert(cache.isOpen());
 
     final version = await cache.version();
-    assert(version == 0);
+    assert(version == 1);
   });
 
   group("Dash operations", () {

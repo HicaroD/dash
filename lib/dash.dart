@@ -1,7 +1,6 @@
 library dash;
 
 import 'dart:io' show Platform;
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as p;
 
 // ignore: unnecessary_import
@@ -16,6 +15,8 @@ const String TABLE_NAME = "cache";
 // ignore: constant_identifier_names
 const String SCHEMA =
     "CREATE TABLE IF NOT EXISTS $TABLE_NAME (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE, value TEXT)";
+// ignore: constant_identifier_names
+const int VERSION = 1;
 
 class Dash {
   late final Database _db;
@@ -35,9 +36,10 @@ class Dash {
     sqfliteFfiInit();
 
     final db = await databaseFactoryFfi.openDatabase("./local_cache.db");
+    await db.setVersion(VERSION);
     await db.execute(SCHEMA);
-    final path = db.path;
 
+    final path = db.path;
     return Dash._(db, path);
   }
 
@@ -47,7 +49,7 @@ class Dash {
 
     Database database = await openDatabase(
       path,
-      version: 0,
+      version: VERSION,
       onCreate: (Database db, int version) async {
         await db.execute(SCHEMA);
       },
@@ -87,13 +89,11 @@ class Dash {
     await _db.delete(TABLE_NAME);
   }
 
-  @visibleForTesting
-  Future<int> version() {
-    return _db.getVersion();
-  }
-
-  @visibleForTesting
   bool isOpen() {
     return _db.isOpen;
+  }
+
+  Future<int> version() {
+    return _db.getVersion();
   }
 }
